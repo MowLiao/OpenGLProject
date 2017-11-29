@@ -14,8 +14,9 @@ class GraphicsWidget: public QGLWidget
 		~GraphicsWidget();
 
 	public slots:
-		void updateAngle(int i);
-        void updateArmAngle(int i);
+		void updateXZAngle(int i);
+		void updateYAngle(int i);
+        void updateCatPos();
 
 	protected:
 	// called when OpenGL context is set up
@@ -41,17 +42,30 @@ class GraphicsWidget: public QGLWidget
 	GLUquadricObj* plowerleft;
 	*/
 
-	void plane();
+	void squarePlane();
+	void cylinderPlane();
 	void segment(int);
-	GLUquadricObj* psegment;
+	void tail(int);
 
 	float segrotate;
 	float segseparate;
-	float squiggles;
+	float segwidth;
+	float segthickness;
+	float movementtick;
+	int segtotal;
 
-	int angle;
-	int larmangle;
-	int rarmangle;
+	GLUquadricObj* catsegment;
+	GLUquadricObj* catdisk;
+	int catcircle;
+	float catup;
+
+	float xcamera;
+	float zcamera;
+	float ycamera;
+	float catpos;
+	//int larmangle;
+	//int rarmangle;
+
 
 	}; // class GLPolygonWidget
 	

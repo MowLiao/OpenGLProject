@@ -6,18 +6,18 @@ GraphicsWindow::GraphicsWindow(QWidget *parent)
 	: QWidget(parent)
 	{
 		// create menu bar
-		menuBar = new QMenuBar(this);
+		//menuBar = new QMenuBar(this);
 		
 		// create file menu
-		fileMenu = menuBar->addMenu("&File");
+		//fileMenu = menuBar->addMenu("&File");
 
 		// create the action
-		actionQuit = new QAction("&Quit", this);
+		//actionQuit = new QAction("&Quit", this);
 
 		// leave signals & slots to the controller
 		
 		// add the item to the menu
-		fileMenu->addAction(actionQuit);
+		//fileMenu->addAction(actionQuit);
 		
 		// create the window layout
 		windowLayout = new QBoxLayout(QBoxLayout::TopToBottom, this);
@@ -26,31 +26,40 @@ GraphicsWindow::GraphicsWindow(QWidget *parent)
 		graphicsWidget = new GraphicsWidget(this);
 		windowLayout->addWidget(graphicsWidget);
 
-		// create slider
-		nSlider = new QSlider(Qt::Horizontal);
-		nSlider->setMinimum(0);
-		nSlider->setMaximum(360);
-		nSlider->setValue(0);
-        connect(nSlider, SIGNAL(valueChanged(int)), graphicsWidget, SLOT(updateAngle(int)));
-        windowLayout->addWidget(nSlider);
+		// create xslider
+		xSlider = new QSlider(Qt::Horizontal);
+		xSlider->setMinimum(-180);
+		xSlider->setMaximum(180);
+		xSlider->setValue(0);
+        connect(xSlider, SIGNAL(valueChanged(int)), graphicsWidget, SLOT(updateXZAngle(int)));
 
-        /*
+		// create yslider
+		ySlider = new QSlider(Qt::Horizontal);
+		ySlider->setMinimum(0);
+		ySlider->setMaximum(50);
+		ySlider->setValue(25);
+        connect(ySlider, SIGNAL(valueChanged(int)), graphicsWidget, SLOT(updateYAngle(int)));
+
+        windowLayout->addWidget(xSlider);
+        windowLayout->addWidget(ySlider);
+
+        
 		ptimer = new QTimer(this);
-        connect(ptimer, SIGNAL(timeout()),  graphicsWidget, SLOT(updateAngle())); 
-        ptimer->start(0);
-        */
+        connect(ptimer, SIGNAL(timeout()),  graphicsWidget, SLOT(updateCatPos())); 
+        ptimer->start(20);
+        
 
 	} 
 
 GraphicsWindow::~GraphicsWindow()
 	{
-	  	//delete ptimer; 
-		delete nSlider;
+	  	delete ptimer; 
+		delete xSlider;
 		delete graphicsWidget;
 		delete windowLayout;
-		delete actionQuit;
-		delete fileMenu;
-		delete menuBar;
+		//delete actionQuit;
+		//delete fileMenu;
+		//delete menuBar;
 	}
 
 // resets all the interface elements

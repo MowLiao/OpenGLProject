@@ -566,7 +566,7 @@ moc_GraphicsWidget.cpp: /home/cserv1_b/apps/install/qt/5.3.1/5.3/gcc_64/include/
 		/home/cserv1_b/apps/install/qt/5.3.1/5.3/gcc_64/include/QtGui/QSurfaceFormat \
 		/home/cserv1_b/apps/install/qt/5.3.1/5.3/gcc_64/include/QtGui/qsurfaceformat.h \
 		GraphicsWidget.h
-	/home/csunix/linux/apps/install/qt/5.3.1/5.3/gcc_64/bin/moc $(DEFINES) -I/home/csunix/linux/apps/install/qt/5.3.1/5.3/gcc_64/mkspecs/linux-g++ -I/home/cserv1_a/soc_ug/sc14ml/modules/L3/COMP3811/cw2/src -I/home/cserv1_a/soc_ug/sc14ml/modules/L3/COMP3811/cw2/src -I/opt/local/include -I/home/csunix/linux/apps/install/qt/5.3.1/5.3/gcc_64/include -I/home/csunix/linux/apps/install/qt/5.3.1/5.3/gcc_64/include/QtOpenGL -I/home/csunix/linux/apps/install/qt/5.3.1/5.3/gcc_64/include/QtWidgets -I/home/csunix/linux/apps/install/qt/5.3.1/5.3/gcc_64/include/QtGui -I/home/csunix/linux/apps/install/qt/5.3.1/5.3/gcc_64/include/QtCore GraphicsWidget.h -o moc_GraphicsWidget.cpp
+	/home/csunix/linux/apps/install/qt/5.3.1/5.3/gcc_64/bin/moc $(DEFINES) -I/home/csunix/linux/apps/install/qt/5.3.1/5.3/gcc_64/mkspecs/linux-g++ -I/home/cserv1_a/soc_ug/sc14ml/modules/L3/COMP3811/cw2/comp3811-cw2/src -I/home/cserv1_a/soc_ug/sc14ml/modules/L3/COMP3811/cw2/comp3811-cw2/src -I/opt/local/include -I/home/csunix/linux/apps/install/qt/5.3.1/5.3/gcc_64/include -I/home/csunix/linux/apps/install/qt/5.3.1/5.3/gcc_64/include/QtOpenGL -I/home/csunix/linux/apps/install/qt/5.3.1/5.3/gcc_64/include/QtWidgets -I/home/csunix/linux/apps/install/qt/5.3.1/5.3/gcc_64/include/QtGui -I/home/csunix/linux/apps/install/qt/5.3.1/5.3/gcc_64/include/QtCore GraphicsWidget.h -o moc_GraphicsWidget.cpp
 
 compiler_moc_source_make_all:
 compiler_moc_source_clean:

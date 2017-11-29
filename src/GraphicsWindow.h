@@ -4,12 +4,13 @@
 #include <QGLWidget>
 #include <QMenuBar>
 #include <QSlider>
+#include <QLabel>
 #include <QBoxLayout>
 #include <QTimer>
 #include "GraphicsWidget.h"
 
 class GraphicsWindow: public QWidget
-	{ 
+{ 
 	public:  
 	
 	// constructor / destructor
@@ -18,11 +19,11 @@ class GraphicsWindow: public QWidget
 
 	// visual hierarchy
 	// menu bar
-	QMenuBar *menuBar;
+	/*QMenuBar *menuBar;
 		// file menu
 		QMenu *fileMenu;
 			// quit action
-			QAction *actionQuit;
+			QAction *actionQuit;*/
 
 	// window layout
 	QBoxLayout *windowLayout;
@@ -30,14 +31,14 @@ class GraphicsWindow: public QWidget
 	// beneath that, the main widget
 	GraphicsWidget *graphicsWidget;
 
-	// and a slider for the number of vertices
-	QSlider *nSlider;
-
+	QSlider *xSlider;
+	QSlider *ySlider;
+	
 	// timer for animation
 	QTimer* ptimer;
 
 	// resets all the interface elements
 	void ResetInterface();
-	}; 
+}; 
 	
 #endif
