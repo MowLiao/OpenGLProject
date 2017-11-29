@@ -42,27 +42,37 @@ class GraphicsWidget: public QGLWidget
 	GLUquadricObj* plowerleft;
 	*/
 
+	void changeMaterial(struct materialStruct*);
+
 	void squarePlane();
 	void cylinderPlane();
-	void segment(int);
-	void tail(int);
 
+	// Caterpillar methods and variables
+	void caterpillar();
+	void cathead();
+	void catsegment(float);
+	void cattail(int);
+	float catpos;
+	float catup;
+	float movementtick;
 	float segrotate;
 	float segseparate;
 	float segwidth;
 	float segthickness;
-	float movementtick;
 	int segtotal;
-
-	GLUquadricObj* catsegment;
-	GLUquadricObj* catdisk;
 	int catcircle;
-	float catup;
+	GLUquadricObj* catsegments;
+	GLUquadricObj* catdisks;
+	GLUquadricObj* catheadobj;
+
+	// Tree methods and variables
+	void tree();
+
+
 
 	float xcamera;
 	float zcamera;
 	float ycamera;
-	float catpos;
 	//int larmangle;
 	//int rarmangle;
 
