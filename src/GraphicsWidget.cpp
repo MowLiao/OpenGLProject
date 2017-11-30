@@ -6,6 +6,7 @@
 #include "GraphicsWidget.h"
 
 #define PI 3.141592653589793
+#define GOLDEN_RATIO 1.61803398875
 
 
 // Setting up material properties
@@ -17,6 +18,14 @@ typedef struct materialStruct
                                     GLfloat shininess;
                                 } materialStruct;
 
+
+static materialStruct planeMaterial = 
+                                        {
+                                            { 1.0, 1.0, 1.0, 1.0},
+                                            { 1.0, 1.0, 1.0, 1.0},
+                                            { 1.0, 1.0, 1.0, 1.0},
+                                            100.0 
+                                        };
 
 static materialStruct middleMaterial = 
                                         {
@@ -45,13 +54,14 @@ static materialStruct catMaterial =
                                         };
 
 
-static materialStruct planeMaterial = 
+static materialStruct trunkMaterial = 
                                         {
-                                            { 1.0, 1.0, 1.0, 1.0},
-                                            { 1.0, 1.0, 1.0, 1.0},
-                                            { 1.0, 1.0, 1.0, 1.0},
-                                            100.0 
+                                            { 0.1, 0.1, 0.1, 1.0},
+                                            { 0.8, 0.75, 0.7, 1.0},
+                                            { 0.02, 0.02, 0.02, 0.5},
+                                            89
                                         };
+
 
 // constructor
 GraphicsWidget::GraphicsWidget(QWidget *parent)
@@ -79,6 +89,8 @@ GraphicsWidget::GraphicsWidget(QWidget *parent)
     segseparate = 1.0;
     segwidth = 1.0;
     segtotal = int(catcircle)/int(segrotate);
+
+    branchiterate = 5;
 }
 
 // called when OpenGL context is set up
@@ -129,10 +141,10 @@ void GraphicsWidget::squarePlane()
 
     glNormal3fv(normals[0]);
     glBegin(GL_POLYGON);
-    glVertex3f( -10.0, 0.0,  10.0);
-    glVertex3f( -10.0, 0.0, -10.0);
-    glVertex3f( 10.0,  0.0, -10.0);
-    glVertex3f( 10.0,  0.0,  10.0);
+        glVertex3f( -10.0, 0.0,  10.0);
+        glVertex3f( -10.0, 0.0, -10.0);
+        glVertex3f( 10.0,  0.0, -10.0);
+        glVertex3f( 10.0,  0.0,  10.0);
     glEnd();
 }
 
@@ -159,8 +171,80 @@ void GraphicsWidget::changeMaterial(materialStruct* materialName)
     glMaterialf(GL_FRONT, GL_SHININESS,   p_front->shininess);
 }
 
-void GraphicsWidget::tree()
+void GraphicsWidget::branch(    int iterate,
+                                float treeheight, 
+                                float rotate, 
+                                float point1, 
+                                float point2, 
+                                float point3    )
 {
+    iterate = iterate-1;
+    treeheight = treeheight / GOLDEN_RATIO;
+    rotate = rotate / GOLDEN_RATIO;
+    point1 = point1 / GOLDEN_RATIO;
+    point2 = point2 / GOLDEN_RATIO;
+    point3 = point3 / GOLDEN_RATIO;
+
+    glTranslatef(0.0, treeheight, 0.0);
+
+    for (int i=0; i<3; i++)
+    {
+        glRotatef(rotate, 1.0, 0.0, 0.0);
+
+        glBegin(GL_POLYGON);
+            glVertex3f( 0.0,  treeheight, 0.0);
+            glVertex3f( -point1, 0.0, point3);
+            glVertex3f( point1, 0.0, point3);
+
+            glVertex3f( 0.0,  treeheight, 0.0);
+            glVertex3f( point1, 0.0, point3);
+            glVertex3f( 0.0, 0.0, point2);
+
+            glVertex3f( 0.0,  treeheight, 0.0);
+            glVertex3f( 0.0, 0.0, point2);
+            glVertex3f( -point1, 0.0, point3);
+        glEnd();
+        if (iterate > 0)
+        {
+            this -> branch(iterate-1, treeheight, rotate, point1, point2, point3);
+        }
+
+        glRotatef(-rotate, 1.0, 0.0, 0.0);
+        glRotatef(120, 0.0, 1.0, 0.0);
+    }
+
+    glTranslatef(0.0, -treeheight, 0.0);
+}
+
+void GraphicsWidget::tree(int iterate)
+{
+    // Draw in counter clockwise
+    //  base:
+    //  (-0.50, -0.28)
+    //  ( 0.50, -0.28)
+    //  ( 0.00,  0.56)
+    float treeheight = 12.0;
+    float rotate = 90;
+    float point1 = 1;
+    float point2 = 1.12;
+    float point3 = -0.56;
+
+    changeMaterial(&trunkMaterial);
+    glBegin(GL_POLYGON);
+        glVertex3f( 0.0,  treeheight, 0.0);
+        glVertex3f( -point1, 0.0, point3);
+        glVertex3f( point1, 0.0, point3);
+
+        glVertex3f( 0.0,  treeheight, 0.0);
+        glVertex3f( point1, 0.0, point3);
+        glVertex3f( 0.0, 0.0, point2);
+
+        glVertex3f( 0.0,  treeheight, 0.0);
+        glVertex3f( 0.0, 0.0, point2);
+        glVertex3f( -point1, 0.0, point3);
+    glEnd();
+
+    this -> branch(iterate, treeheight, rotate, point1, point2, point3);
 
 }
 
@@ -321,12 +405,12 @@ void GraphicsWidget::paintGL()
     glPopMatrix();
 
     glPushMatrix();
-    this -> tree();
+    this -> tree(7);
     glPopMatrix();
 
 	glLoadIdentity();
     gluLookAt(  xcamera,    ycamera,    zcamera, 
-                0.0,        0.0,        0.0, 
+                0.0,        2.0,        0.0, 
                 0.0,        1.0,        0.0);
 	
 	// flush to screen
@@ -346,7 +430,7 @@ void GraphicsWidget::updateXZAngle(int i)
 
 void GraphicsWidget::updateYAngle(int i)
 {
-    ycamera = (float)i/10;
+    ycamera = (float)i/5;
     this->repaint();
 }
 
@@ -354,5 +438,11 @@ void GraphicsWidget::updateCatPos()
 {
     catpos = fmod(catpos + 0.05, 360.0);
     movementtick+=0.07;
+    this->repaint();
+}
+
+void GraphicsWidget::updateBranches(int i)
+{
+    branchiterate = i;
     this->repaint();
 }

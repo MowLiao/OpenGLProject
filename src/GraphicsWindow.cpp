@@ -35,13 +35,21 @@ GraphicsWindow::GraphicsWindow(QWidget *parent)
 
 		// create yslider
 		ySlider = new QSlider(Qt::Horizontal);
-		ySlider->setMinimum(0);
+		ySlider->setMinimum(10);
 		ySlider->setMaximum(50);
-		ySlider->setValue(25);
+		ySlider->setValue(15);
         connect(ySlider, SIGNAL(valueChanged(int)), graphicsWidget, SLOT(updateYAngle(int)));
+
+		// create treeslider
+		//branchSlider = new QSlider(Qt::Horizontal);
+		//branchSlider->setMinimum(2);
+		//branchSlider->setMaximum(8);
+		//branchSlider->setValue(5);
+        //connect(ySlider, SIGNAL(valueChanged(int)), graphicsWidget, SLOT(updateBranches(int)));
 
         windowLayout->addWidget(xSlider);
         windowLayout->addWidget(ySlider);
+        //windowLayout->addWidget(branchSlider);
 
         
 		ptimer = new QTimer(this);

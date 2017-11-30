@@ -33,6 +33,7 @@ class GraphicsWindow: public QWidget
 
 	QSlider *xSlider;
 	QSlider *ySlider;
+	QSlider *branchSlider;
 	
 	// timer for animation
 	QTimer* ptimer;

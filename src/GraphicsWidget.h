@@ -17,6 +17,7 @@ class GraphicsWidget: public QGLWidget
 		void updateXZAngle(int i);
 		void updateYAngle(int i);
         void updateCatPos();
+        void updateBranches(int i);
 
 	protected:
 	// called when OpenGL context is set up
@@ -66,7 +67,9 @@ class GraphicsWidget: public QGLWidget
 	GLUquadricObj* catheadobj;
 
 	// Tree methods and variables
-	void tree();
+	void tree(int);
+	void branch(int, float, float, float, float, float);
+	int branchiterate;
 
 
 
