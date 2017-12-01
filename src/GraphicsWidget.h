@@ -16,8 +16,8 @@ class GraphicsWidget: public QGLWidget
 	public slots:
 		void updateXZAngle(int i);
 		void updateYAngle(int i);
-        void updateCatPos();
-        void updateBranches(int i);
+        void updatePos();
+        void updateZoom(int i);
 
 	protected:
 	// called when OpenGL context is set up
@@ -44,9 +44,16 @@ class GraphicsWidget: public QGLWidget
 	*/
 
 	void changeMaterial(struct materialStruct*);
-
 	void squarePlane();
 	void cylinderPlane();
+
+	// Texture methods and variables
+	void setPPMTexture(char*, QImage&, GLubyte*&);
+	QImage marcimage;
+	GLubyte* marctexture;
+	QImage earthimage;
+	GLubyte* earthtexture;
+
 
 	// Caterpillar methods and variables
 	void caterpillar();
@@ -69,15 +76,21 @@ class GraphicsWidget: public QGLWidget
 	// Tree methods and variables
 	void tree(int);
 	void branch(int, float, float, float, float, float);
-	int branchiterate;
+	void leaves();
+	int branchangle;
+
+	// Earth
+	void earth(float);
+	float earthpos;
 
 
-
+	float zoom;
 	float xcamera;
 	float zcamera;
 	float ycamera;
 	//int larmangle;
 	//int rarmangle;
+
 
 
 	}; // class GLPolygonWidget

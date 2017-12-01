@@ -5,19 +5,6 @@
 GraphicsWindow::GraphicsWindow(QWidget *parent)
 	: QWidget(parent)
 	{
-		// create menu bar
-		//menuBar = new QMenuBar(this);
-		
-		// create file menu
-		//fileMenu = menuBar->addMenu("&File");
-
-		// create the action
-		//actionQuit = new QAction("&Quit", this);
-
-		// leave signals & slots to the controller
-		
-		// add the item to the menu
-		//fileMenu->addAction(actionQuit);
 		
 		// create the window layout
 		windowLayout = new QBoxLayout(QBoxLayout::TopToBottom, this);
@@ -35,25 +22,25 @@ GraphicsWindow::GraphicsWindow(QWidget *parent)
 
 		// create yslider
 		ySlider = new QSlider(Qt::Horizontal);
-		ySlider->setMinimum(10);
-		ySlider->setMaximum(50);
-		ySlider->setValue(15);
+		ySlider->setMinimum(25);
+		ySlider->setMaximum(100);
+		ySlider->setValue(50);
         connect(ySlider, SIGNAL(valueChanged(int)), graphicsWidget, SLOT(updateYAngle(int)));
 
-		// create treeslider
-		//branchSlider = new QSlider(Qt::Horizontal);
-		//branchSlider->setMinimum(2);
-		//branchSlider->setMaximum(8);
-		//branchSlider->setValue(5);
-        //connect(ySlider, SIGNAL(valueChanged(int)), graphicsWidget, SLOT(updateBranches(int)));
+		// // create treeslider
+		// zoomSlider = new QSlider(Qt::Horizontal);
+		// zoomSlider->setMinimum(5);
+		// zoomSlider->setMaximum(60);
+		// zoomSlider->setValue(35);
+  // 		connect(zoomSlider, SIGNAL(valueChanged(int)), graphicsWidget, SLOT(updateZoom(int)));
 
         windowLayout->addWidget(xSlider);
         windowLayout->addWidget(ySlider);
-        //windowLayout->addWidget(branchSlider);
+        // windowLayout->addWidget(zoomSlider);
 
         
 		ptimer = new QTimer(this);
-        connect(ptimer, SIGNAL(timeout()),  graphicsWidget, SLOT(updateCatPos())); 
+        connect(ptimer, SIGNAL(timeout()),  graphicsWidget, SLOT(updatePos())); 
         ptimer->start(20);
         
 

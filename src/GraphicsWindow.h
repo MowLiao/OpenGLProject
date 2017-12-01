@@ -17,14 +17,6 @@ class GraphicsWindow: public QWidget
 	GraphicsWindow(QWidget *parent);
 	~GraphicsWindow();
 
-	// visual hierarchy
-	// menu bar
-	/*QMenuBar *menuBar;
-		// file menu
-		QMenu *fileMenu;
-			// quit action
-			QAction *actionQuit;*/
-
 	// window layout
 	QBoxLayout *windowLayout;
 
@@ -33,7 +25,7 @@ class GraphicsWindow: public QWidget
 
 	QSlider *xSlider;
 	QSlider *ySlider;
-	QSlider *branchSlider;
+	// QSlider *zoomSlider;
 	
 	// timer for animation
 	QTimer* ptimer;
