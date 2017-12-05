@@ -48,11 +48,13 @@ class GraphicsWidget: public QGLWidget
 	void cylinderPlane();
 
 	// Texture methods and variables
-	void setPPMTexture(char*, QImage&, GLubyte*&);
+	void getPPMTexture(char*, QImage&, GLubyte*&);
 	QImage marcimage;
 	GLubyte* marctexture;
 	QImage earthimage;
 	GLubyte* earthtexture;
+	QImage groundimage;
+	GLubyte* groundtexture;
 
 
 	// Caterpillar methods and variables
@@ -82,6 +84,7 @@ class GraphicsWidget: public QGLWidget
 	// Earth
 	void earth(float);
 	float earthpos;
+	float earthypos;
 
 
 	float zoom;

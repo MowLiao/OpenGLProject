@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include "GraphicsWidget.h"
 #include <QString>
+#include <stdlib.h>
 
 #define PI 3.141592653589793
 #define GOLDEN_RATIO 1.61803398875
@@ -59,27 +60,36 @@ static materialStruct catMaterial =
 
 static materialStruct trunkMaterial = 
                                         {
-                                            { 0.1, 0.1, 0.1, 1.0},
-                                            { 0.8, 0.75, 0.7, 1.0},
-                                            { 0.02, 0.02, 0.02, 0.5},
-                                            89
+                                            { 99./255., 86./255., 63./255., 1.0},
+                                            { 145./255., 114./255., 62./255., 0.7},
+                                            { 145./255., 129./255., 93./255., 0.2},
+                                            1
                                         };
 
 static materialStruct leafMaterial = 
                                         {
-                                            { 0.1, 0.1, 0.1, 1.0},
-                                            { 0.27, 0.72, 0.22, 1.0},
-                                            { 0.02, 0.02, 0.02, 0.5},
-                                            89
+                                            { 89./255., 137./255., 82./255., 1.0},
+                                            { 58./255., 86./255., 53./255., 0.7},
+                                            { 23./255., 124./255., 7./255., 0.2},
+                                            40
                                         };
 
 static materialStruct baseMaterial = 
                                         {
-                                            { 1.0, 1.0, 1.0, 1.0},
-                                            { 1.0, 1.0, 1.0, 1.0},
-                                            { 1.0, 1.0, 1.0, 1.0},
-                                            100.0 
+                                            { 1., 1,, 1,, 0.5},
+                                            { 1., 1., 1,, 1.0},
+                                            { 1., 1., 1., 0.4},
+                                            60 
                                         };
+
+static materialStruct orbMaterial = 
+                                        {
+                                            { 0.2, 0.0, 0.2, 0.5},
+                                            { 0.1, 0.0, 0.1, 1.0},
+                                            { 0.15, 0.0, 0.15, 0.4},
+                                            60 
+                                        };
+
 
 
 // constructor
@@ -114,9 +124,9 @@ GraphicsWidget::GraphicsWidget(QWidget *parent)
     earthpos = 0.0;
     zoom = 35.0;
 
-    this->setPPMTexture("tex/marc.ppm", marcimage, marctexture);
-    this->setPPMTexture("tex/earth.ppm", earthimage, earthtexture);
-    std::cout << earthimage.width() << " " << earthimage.height() << "\n";
+    this->getPPMTexture("tex/marc.ppm", marcimage, marctexture);
+    this->getPPMTexture("tex/earth.ppm", earthimage, earthtexture);
+    this->getPPMTexture("tex/ground.ppm", groundimage, groundtexture);
 
 }
 
@@ -129,6 +139,7 @@ void GraphicsWidget::initializeGL()
     GLfloat b = float(241)/255.0; 
 	// set the widget background colour
 	glClearColor(r, g, b, 0.0);
+    glEnable(GL_NORMALIZE);
 }
 
 GraphicsWidget::~GraphicsWidget()
@@ -159,16 +170,16 @@ void GraphicsWidget::resizeGL(int w, int h)
     float scale = 35;
     glOrtho(-w/scale, w/scale, -h/scale, h/scale, -100, 100);
     //gluPerspective(45.0, (float)w / (float)h, 1, 200.0);
-
-
 }
 
-void GraphicsWidget::setPPMTexture(char* filename, QImage &image, GLubyte* &texture)
+void GraphicsWidget::getPPMTexture(char* filename, QImage &image, GLubyte* &texture)
 {
 
     image = QImage(QString(filename), "PPM");
     int width = image.width();
     int height = image.height();
+    std::cout << "importing: " << filename << "\n";
+    std::cout << width << " " << height << "\n";
     texture = new GLubyte[width * height * 3];
     unsigned int incr=0;
 
@@ -177,7 +188,7 @@ void GraphicsWidget::setPPMTexture(char* filename, QImage &image, GLubyte* &text
         for (int j=0; j< height; j++)
         {
             incr = 3 * j * height + 3 * i;
-            QRgb color = image.pixel(width-1-i, height-1-j); 
+            QRgb color = image.pixel(i, height-1-j); 
             texture[incr] = qRed(color);
             texture[incr +1] = qGreen(color);
             texture[incr+2] = qBlue(color);
@@ -212,24 +223,90 @@ void GraphicsWidget::squarePlane()
 
 void GraphicsWidget::cylinderPlane()
 {
+    glEnable(GL_TEXTURE_2D);
+
+    GLUquadric* texQuadric = gluNewQuadric();
+    gluQuadricTexture(texQuadric, GL_TRUE);
+
+    glTexImage2D(   GL_TEXTURE_2D, 
+                    0, GL_RGB, 
+                    this->groundimage.width(), 
+                    this->groundimage.height(), 
+                    0, 
+                    GL_RGB, 
+                    GL_UNSIGNED_BYTE, 
+                    this->groundtexture);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); 
+
     glPushMatrix();
     glRotatef(270, 1.0, 0.0, 0.0);
     glTranslatef(0.0, 0.0, -5.0);
     GLUquadricObj* plane = gluNewQuadric();
     gluCylinder(plane, 12.0, 12.0, 5.0, 50, 10);
-    GLUquadricObj* disk = gluNewQuadric();
-    gluDisk(disk, 0, 12.0, 50, 50);
+    GLUquadric* disk = gluNewQuadric();
+
+    gluDisk(texQuadric, 0, 12.0, 50, 50);
     glTranslatef(0.0, 0.0, 5.0);
-    gluDisk(disk, 0, 12.0, 50, 50);
+    gluDisk(texQuadric, 0, 12.0, 50, 50);
     glPopMatrix();
+
+
+    glDisable(GL_TEXTURE_2D);
+}
+
+void GraphicsWidget::earth(float size)
+{
+    float bob = 0.25;
+    float ypos = this->earthypos;
+    float rotate = this->earthpos;
+
+    glEnable(GL_TEXTURE_2D);
+
+    GLUquadric* texQuadric = gluNewQuadric();
+
+    gluQuadricTexture(texQuadric, GL_TRUE);
+    gluQuadricNormals(texQuadric, GLU_SMOOTH);
+
+    // // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    // // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    // // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    // // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); 
+
+    // glTexImage2D(   GL_TEXTURE_2D, 
+    //                 0, GL_RGB, 
+    //                 this->earthimage.width(), 
+    //                 this->earthimage.height(), 
+    //                 0, 
+    //                 GL_RGB, 
+    //                 GL_UNSIGNED_BYTE, 
+    //                 this->earthtexture);
+    glDisable(GL_TEXTURE_2D);
+
+    glTranslatef(0.0, bob * sin(ypos * PI/180), 0.0);
+    glRotatef(rotate, 0.0, 1.0, 0.0);
+    changeMaterial(&baseMaterial);
+    gluSphere(texQuadric, size, 30, 30);
+    glDisable(GL_TEXTURE_2D);
+    glRotatef(-rotate, 0.0, 1.0, 0.0);
+    glTranslatef(0.0, bob * -sin(ypos * PI/180), 0.0);
+
+
 }
 
 void GraphicsWidget::leaves()
 {
+    GLfloat normals[3] =  {0,0,-0.12};
+
+    glScalef(15,15,15);
     for (int i=0; i<5; i++)
     {
         glRotatef(65, 1.0, 0.0, 0.0);
         changeMaterial(&leafMaterial);
+        glNormal3fv(normals);
         glBegin(GL_POLYGON);
             glVertex3f( 0.0,  0.0, 0.0);
             glVertex3f( -0.2, 0.1, 0.0);
@@ -244,23 +321,34 @@ void GraphicsWidget::leaves()
         glRotatef(-65, 1.0, 0.0, 0.0);
         glRotatef(72, 0.0, 1.0, 0.0);
     }
+    glScalef(1.0/15.0, 1.0/15.0, 1.0/15.0);
 
 }
 
 void GraphicsWidget::branch(    int iterate,
                                 float treeheight, 
-                                float rotate, 
-                                float point1, 
-                                float point2, 
-                                float point3    )
+                                float rotate,
+                                float point1,
+                                float point2,
+                                float point3)
 {
     iterate = iterate-1;
-    treeheight = treeheight / GOLDEN_RATIO;
     rotate = rotate / GOLDEN_RATIO;
-    point1 = point1 / GOLDEN_RATIO;
-    point2 = point2 / GOLDEN_RATIO;
-    point3 = point3 / GOLDEN_RATIO;
 
+    GLfloat normals[3][3] =  {  {(-treeheight*point3)-(-treeheight*point3),
+                                (-point1*point3)-(point1*point3),
+                                (-point1*-treeheight)-(point1*-treeheight)},
+
+                                {(-treeheight*point2)-(-treeheight*point3),
+                                (point1*point2)-(0*point3),
+                                (point1*-treeheight)-(0*-treeheight)},
+
+                                {(-treeheight*point3)-(-treeheight*point2),
+                                (0*point3)-(-point1*point2),
+                                (0*-treeheight)-(-point1*-treeheight)}
+                            };
+
+    glScalef(1/GOLDEN_RATIO,1/GOLDEN_RATIO,1/GOLDEN_RATIO);
     glTranslatef(0.0, treeheight, 0.0);
 
     for (int i=0; i<3; i++)
@@ -268,28 +356,39 @@ void GraphicsWidget::branch(    int iterate,
         glRotatef(rotate, 1.0, 0.0, 0.0);
 
         changeMaterial(&trunkMaterial);
+        glNormal3fv(normals[0]);
         glBegin(GL_POLYGON);
             glVertex3f( 0.0,  treeheight, 0.0);
-            glVertex3f( -point1, 0.0, point3);
-            glVertex3f( point1, 0.0, point3);
-
-            glVertex3f( 0.0,  treeheight, 0.0);
-            glVertex3f( point1, 0.0, point3);
-            glVertex3f( 0.0, 0.0, point2);
-
-            glVertex3f( 0.0,  treeheight, 0.0);
-            glVertex3f( 0.0, 0.0, point2);
-            glVertex3f( -point1, 0.0, point3);
+            glVertex3f( -1, 0.0, -0.56);
+            glVertex3f( 1, 0.0, -0.56);
         glEnd();
+
+        glNormal3fv(normals[1]);
+        glBegin(GL_POLYGON);
+            glVertex3f( 0.0,  treeheight, 0.0);
+            glVertex3f( 1, 0.0, -0.56);
+            glVertex3f( 0.0, 0.0, 1.12);
+        glEnd();
+
+        glNormal3fv(normals[2]);
+        glBegin(GL_POLYGON);
+            glVertex3f( 0.0,  treeheight, 0.0);
+            glVertex3f( 0.0, 0.0, 1.12);
+            glVertex3f( -1, 0.0, -0.56);
+        glEnd();
+
         if (iterate > 0)
         {
+            glRotatef(rotate, 0.0, 1.0, 0.0);
             this -> branch(iterate, treeheight, rotate, point1, point2, point3);
+            glRotatef(rotate, 0.0, -1.0, 0.0);
         }
+
         if (iterate == 0)
         {
-            glTranslatef(0.0, treeheight, 0.0);
+            glTranslatef(0.0, treeheight*0.8, 0.0);
             this -> leaves();
-            glTranslatef(0.0, -treeheight, 0.0);
+            glTranslatef(0.0, -treeheight*0.8, 0.0);
         }
 
         glRotatef(-rotate, 1.0, 0.0, 0.0);
@@ -297,38 +396,7 @@ void GraphicsWidget::branch(    int iterate,
     }
 
     glTranslatef(0.0, -treeheight, 0.0);
-}
-
-void GraphicsWidget::earth(float size)
-{
-
-    glEnable(GL_TEXTURE_2D);
-
-    GLUquadric* texQuadric = gluNewQuadric();
-    gluQuadricTexture(texQuadric, GL_TRUE);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); 
-
-    glTexImage2D(   GL_TEXTURE_2D, 
-                    0, GL_RGB, 
-                    this->earthimage.width(), 
-                    this->earthimage.height(), 
-                    0, 
-                    GL_RGB, 
-                    GL_UNSIGNED_BYTE, 
-                    this->earthtexture);
-
-    float rotate = this->earthpos;
-    glRotatef(rotate, 0.0, 1.0, 0.0);
-    changeMaterial(&baseMaterial);
-    gluSphere(texQuadric, size, 30, 30);
-    glDisable(GL_TEXTURE_2D);
-    glRotatef(-rotate, 0.0, 1.0, 0.0);
-
-
+    glScalef(GOLDEN_RATIO,GOLDEN_RATIO,GOLDEN_RATIO);
 }
 
 void GraphicsWidget::tree(int iterate)
@@ -345,34 +413,53 @@ void GraphicsWidget::tree(int iterate)
     float point3 = -0.56;
 
     changeMaterial(&trunkMaterial);
+    GLfloat normals[3][3] =  {  {(-treeheight*point3)-(-treeheight*point3),
+                                (-point1*point3)-(point1*point3),
+                                (-point1*-treeheight)-(point1*-treeheight)},
+
+                                {(-treeheight*point2)-(-treeheight*point3),
+                                (point1*point2)-(0*point3),
+                                (point1*-treeheight)-(0*-treeheight)},
+
+                                {(-treeheight*point3)-(-treeheight*point2),
+                                (0*point3)-(-point1*point2),
+                                (0*-treeheight)-(-point1*-treeheight)}
+                            };
+
+
+    glNormal3fv(normals[0]);
     glBegin(GL_POLYGON);
         glVertex3f( 0.0,  treeheight, 0.0);
         glVertex3f( -point1, 0.0, point3);
         glVertex3f( point1, 0.0, point3);
+    glEnd();
 
+    glNormal3fv(normals[1]);
+    glBegin(GL_POLYGON);
         glVertex3f( 0.0,  treeheight, 0.0);
         glVertex3f( point1, 0.0, point3);
         glVertex3f( 0.0, 0.0, point2);
+    glEnd();
 
+    glNormal3fv(normals[2]);
+    glBegin(GL_POLYGON);
         glVertex3f( 0.0,  treeheight, 0.0);
         glVertex3f( 0.0, 0.0, point2);
         glVertex3f( -point1, 0.0, point3);
     glEnd();
 
-
-    // Draw earth
-    glTranslatef(0.0, treeheight + 4.0, 0.0);
-    this -> earth(15);
-    glTranslatef(0.0, -(treeheight + 4.0), 0.0);
-
-
     this -> branch(iterate, treeheight, rotate, point1, point2, point3);
     float newrotate = rotate/GOLDEN_RATIO;
     glRotatef(newrotate, 0.0, 1.0, 0.0);
-    this -> branch(iterate-1, treeheight*1.1, 75, point1, point2, point3);
+    this -> branch(iterate-1, treeheight+1, 75, point1, point2, point3);
     newrotate = newrotate/GOLDEN_RATIO;
     glRotatef(newrotate, 0.0, 1.0, 0.0);
-    this -> branch(iterate-2, treeheight*pow(1.1,2), 60, point1, point2, point3);
+    this -> branch(iterate-2, treeheight+1, 60, point1, point2, point3);
+
+    // Draw earth
+    glTranslatef(0.0, treeheight + 10.0, 0.0);
+    this -> earth(3);
+    glTranslatef(0.0, -(treeheight + 10.0), 0.0);
 
 }
 
@@ -460,15 +547,15 @@ void GraphicsWidget::cathead()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); 
 
-    glRotatef(-110, 1.0, 0.0, 0.0);
-    glRotatef(30, 0.0, 0.0, 1.0);
+    glRotatef(-120, 1.0, 0.0, 0.0);
+    glRotatef(-30, 0.0, 0.0, 1.0);
 
-    changeMaterial(&middleMaterial);
+    changeMaterial(&catMaterial);
     gluSphere(texQuadric, segwidth, 30, 30);
     glDisable(GL_TEXTURE_2D);
 
-    glRotatef(-30, 0.0, 0.0, 1.0);
-    glRotatef(110, 1.0, 0.0, 0.0);
+    glRotatef(30, 0.0, 0.0, 1.0);
+    glRotatef(120, 1.0, 0.0, 0.0);
 
 
 }
@@ -558,12 +645,12 @@ void GraphicsWidget::paintGL()
 
     // glDrawPixels(marcimage.width(),marcimage.height(),GL_RGB, GL_UNSIGNED_BYTE, this->marctexture);
 
-    // glDrawPixels(earthimage.width(),earthimage.height(),GL_RGB, GL_UNSIGNED_BYTE, this->earthtexture);
+    //glDrawPixels(earthimage.height(),earthimage.width(),GL_RGB, GL_UNSIGNED_BYTE, this->earthtexture);
 
 
 	glLoadIdentity();
     gluLookAt(  xcamera,    ycamera,    zcamera, 
-                0.0,        5.0,        0.0, 
+                0.0,        8.0,        0.0, 
                 0.0,        1.0,        0.0);
 	
 	// flush to screen
@@ -592,6 +679,7 @@ void GraphicsWidget::updatePos()
     this->catpos = fmod(catpos + 0.05, 360.0);
     this->movementtick+=0.07;
     this->earthpos = fmod(earthpos - 0.1, 360.0);
+    this->earthypos = fmod(earthypos + 1, 360.0);
     this->repaint();
 }
 

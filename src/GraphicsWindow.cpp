@@ -22,17 +22,10 @@ GraphicsWindow::GraphicsWindow(QWidget *parent)
 
 		// create yslider
 		ySlider = new QSlider(Qt::Horizontal);
-		ySlider->setMinimum(25);
+		ySlider->setMinimum(40);
 		ySlider->setMaximum(100);
 		ySlider->setValue(50);
         connect(ySlider, SIGNAL(valueChanged(int)), graphicsWidget, SLOT(updateYAngle(int)));
-
-		// // create treeslider
-		// zoomSlider = new QSlider(Qt::Horizontal);
-		// zoomSlider->setMinimum(5);
-		// zoomSlider->setMaximum(60);
-		// zoomSlider->setValue(35);
-  // 		connect(zoomSlider, SIGNAL(valueChanged(int)), graphicsWidget, SLOT(updateZoom(int)));
 
         windowLayout->addWidget(xSlider);
         windowLayout->addWidget(ySlider);
